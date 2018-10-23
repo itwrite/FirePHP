@@ -57,14 +57,19 @@ class Where extends Eloquent{
                 $this->data[] = $field;
             }
             elseif (func_num_args() == 2) {
-
-                $value = $operator;
+                /**
+                 * 参数只有两个时的情况
+                 * 第一个必为field,
+                 * 第二个分两种情况
+                 * 1,当它为数组时，使用in
+                 * 2,当它为其它时，使用=
+                 */
                 if (is_array($operator)) {
                     list($value,$operator) = array($operator,'in');
                     $this->data[] = new Condition($field, $operator, $value, $boolean);
                 } else {
                     list($value,$operator) = array($operator,'=');
-                    $this->data[] = new Condition($field, '=', $value, $boolean);
+                    $this->data[] = new Condition($field, $operator, $value, $boolean);
                 }
             } elseif (func_num_args() > 2) {
                 $this->data[] = new Condition($field, $operator, $value, $boolean);

@@ -12,6 +12,10 @@ use Firework\library\db\grammar\Grammar;
 
 require_once("Builder.php");
 
+/**
+ * Class Database
+ * @package Firework\library\db
+ */
 class Database extends Builder
 {
     /**
@@ -52,7 +56,7 @@ class Database extends Builder
         if (func_num_args() > 0) {
             $this->_debug = $debug;
         }
-        return $this->_debug;
+        return $this;
     }
 
     /**
@@ -172,7 +176,7 @@ class Database extends Builder
      * <p>
      * Data inside the query should be properly escaped.
      * </p>
-     * @return \PDOStatement <b>PDO::query</b> returns a PDOStatement object, or <b>FALSE</b>
+     * @return \PDOStatement|false <b>PDO::query</b> returns a PDOStatement object, or <b>FALSE</b>
      * on failure.
      */
     public function query($statement)
@@ -219,6 +223,7 @@ class Database extends Builder
      * <code>
      * $db->exec() or die(print_r($db->errorInfo(), true));
      * </code>
+     * @return int|false
      */
     public function exec($statement)
     {

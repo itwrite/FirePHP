@@ -32,18 +32,6 @@ class Condition
     private $_boolean = '';
 
     /**
-     * All of the available clause operators.
-     *
-     * @var array
-     */
-    private $_operators = array(
-        '=', '<', '>', '<=', '>=', '<>', '!=', 'in', 'not in',
-        'like', 'not like', 'between', 'ilike',
-        '&', '|', '^', '<<', '>>',
-        'rlike', 'regexp', 'not regexp',
-    );
-
-    /**
      * @param $field
      * @param $operator
      * @param $value
