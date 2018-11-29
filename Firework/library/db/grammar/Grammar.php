@@ -23,13 +23,14 @@ use Firework\library\db\query\Select;
 use Firework\library\db\query\Set;
 use Firework\library\db\query\Where;
 
-require_once(__DIR__."/../query/capsule/Expression.php");
-require_once(__DIR__."/../query/schema/Eloquent.php");
+require_once(__DIR__ . "/../query/capsule/Expression.php");
+require_once(__DIR__ . "/../query/schema/Eloquent.php");
+require_once(__DIR__ . "/../query/From.php");
+require_once(__DIR__ . "/../query/Where.php");
+require_once(__DIR__ . "/../query/capsule/Condition.php");
 
-require_once(__DIR__."/../query/From.php");
-require_once(__DIR__."/../query/Where.php");
-require_once(__DIR__."/../query/capsule/Condition.php");
-class Grammar {
+class Grammar
+{
 
     /**
      * @var array
@@ -40,25 +41,26 @@ class Grammar {
         '&', '|', '^', '<<', '>>',
         'rlike', 'regexp', 'not regexp',
     );
+
     /**
-     * @param string $value
+     * @param string|array $value
      * @return string
      */
     protected function wrap($value)
     {
-        if(is_array($value)){
-            return implode(',',array_map(function($val){
+        if (is_array($value)) {
+            return implode(',', array_map(function ($val) {
                 return $this->wrap($val);
-            },$value));
+            }, $value));
         }
-        if(is_string($value) && strpos(strtolower($value), ',') !== false){
-            return $this->wrap(explode(',',$value));
+        if (is_string($value) && strpos(strtolower($value), ',') !== false) {
+            return $this->wrap(explode(',', $value));
         }
 
-        $arr = explode(' ',preg_replace('/\s+/', ' ', trim($value)),2);
+        $arr = explode(' ', preg_replace('/\s+/', ' ', trim($value)), 2);
 
         $value = $arr[0];
-        $alias = isset($arr[1])?" {$arr[1]}":'';
+        $alias = isset($arr[1]) ? " {$arr[1]}" : '';
 
         $wrapped = array();
 
@@ -68,39 +70,42 @@ class Grammar {
 
             $segment = str_replace('`', '', $segment);
 
-            $wrapped[] = $segment=='*'?$segment:"{$segment}";
+            $wrapped[] = $segment == '*' ? $segment : "{$segment}";
         }
 
-        return implode('.', $wrapped).$alias;
+        return implode('.', $wrapped) . $alias;
     }
 
     /**
      * @param $value
      * @return array|mixed|string
      */
-    function wrapValue($value){
-        if($value instanceof Expression){
+    function wrapValue($value)
+    {
+        if ($value instanceof Expression) {
             return $value->getValue();
-        }elseif (is_string($value)) {
+        } elseif (is_string($value) || is_numeric($value)) {
             $value = addslashes($value);
             return "'{$value}'";
-        }elseif (is_array($value)) {
+        } elseif (is_array($value)) {
             //return an array
             return array_map(function ($val) {
                 return $this->wrapValue($val);
             }, array_values($value));
-        }elseif($value instanceof \Closure){
-            return call_user_func($value,$this);
+        } elseif ($value instanceof \Closure) {
+            return call_user_func($value, $this);
         }
-        return $value;
+
+        return $value ? '' : $value;
     }
 
     /**
      * @param $field
      * @return string
      */
-    function wrapField($field){
-        if ($field instanceof Expression){
+    function wrapField($field)
+    {
+        if ($field instanceof Expression) {
             return $field->getValue();
         }
         return $this->wrap($field);
@@ -110,8 +115,9 @@ class Grammar {
      * @param $table
      * @return array|mixed|string
      */
-    function wrapTable($table){
-        if ($table instanceof Expression){
+    function wrapTable($table)
+    {
+        if ($table instanceof Expression) {
             return $table->getValue();
         }
         return $this->wrap($table);
@@ -121,12 +127,13 @@ class Grammar {
      * @param Condition $condition
      * @return string
      */
-    function compileCondition(Condition $condition){
+    function compileCondition(Condition $condition)
+    {
 
         $value = $condition->getValue();
         $field = $condition->getField();
         $operator = $condition->getOperator();
-        if (!in_array($operator, $this->operators,true)) {
+        if (!in_array($operator, $this->operators, true)) {
             // If the given operator is not found in the list of valid operators we will
             // assume that the developer is just short-cutting the '=' operators and
             // we will set the operators to '=' and set the values appropriately.
@@ -138,14 +145,15 @@ class Grammar {
             return implode(' ', array($this->wrapField($field), strtoupper($operator), "(" . implode(',', $this->wrapValue($value)) . ")"));
         }
 
-        return implode(' ', array($this->wrapField($field), strtoupper($operator),  $this->wrapValue($value)));
+        return implode(' ', array($this->wrapField($field), strtoupper($operator), $this->wrapValue($value)));
     }
 
     /**
      * @param Select $select
      * @return string
      */
-    function compileSelect(Select &$select){
+    function compileSelect(Select &$select)
+    {
         $SQL = implode(',', array_map(function ($item) {
             return $this->wrapField($item);
         }, $select->data()));
@@ -158,7 +166,8 @@ class Grammar {
      * @param From $from
      * @return string
      */
-    function compileFrom(From &$from){
+    function compileFrom(From &$from)
+    {
         $SQL = implode(',', array_map(function ($item) {
             return $this->wrapTable($item);
         }, $from->data()));
@@ -181,7 +190,7 @@ class Grammar {
                     $on = $this->compileWhere($on);
                 }
                 $sqlArr[] = implode(' ', array($item->getType(), $this->wrapTable($item->getTable()), 'ON', $on));
-            }else{
+            } else {
                 $sqlArr[] = $item;
             }
 
@@ -189,32 +198,33 @@ class Grammar {
         $join->clear();
         return implode(' ', $sqlArr);
     }
-        /**
-         * @param Where $where
-         * @return string
-         */
-        function compileWhere(Where &$where)
-        {
-            $sqlArr = array();
-            foreach ($where->data() as $i => $condition) {
-                if ($condition instanceof Where || $condition instanceof Condition) {
-                    if ($i > 0) {
-                        $sqlArr[] = $condition->getBoolean() == 'and' ? 'AND' : 'OR';
-                    }
-                    if ($condition instanceof Where) {
-                        $sqlArr[] = "(" . $this->compileWhere($condition) . ")";
-                    } else if ($condition instanceof Condition) {
-                        $sqlArr[] = $this->compileCondition($condition);
-                    }
-                } else if ($condition instanceof Expression) {
-                    $sqlArr[] = $condition->getValue();
-                } else {
-                    $sqlArr[] = (string)$condition;
+
+    /**
+     * @param Where $where
+     * @return string
+     */
+    function compileWhere(Where &$where)
+    {
+        $sqlArr = array();
+        foreach ($where->data() as $i => $condition) {
+            if ($condition instanceof Where || $condition instanceof Condition) {
+                if ($i > 0) {
+                    $sqlArr[] = $condition->getBoolean() == 'and' ? 'AND' : 'OR';
                 }
+                if ($condition instanceof Where) {
+                    $sqlArr[] = "(" . $this->compileWhere($condition) . ")";
+                } else if ($condition instanceof Condition) {
+                    $sqlArr[] = $this->compileCondition($condition);
+                }
+            } else if ($condition instanceof Expression) {
+                $sqlArr[] = $condition->getValue();
+            } else {
+                $sqlArr[] = (string)$condition;
             }
-            $where->clear();
-            return implode(' ', $sqlArr);
         }
+        $where->clear();
+        return implode(' ', $sqlArr);
+    }
 
 
     /**
@@ -251,7 +261,8 @@ class Grammar {
      */
     protected function compileHaving(Having &$having)
     {
-        $SQL = $this->compileWhere($having->getWhere());
+        $where = $having->getWhere();
+        $SQL = $this->compileWhere($where);
 
         $having->clear();
         return $SQL;
@@ -290,59 +301,104 @@ class Grammar {
      * @param Builder $builder
      * @return string
      */
-    function toSelectSql(Builder &$builder)
+    function toCountSql(Builder &$builder)
     {
-        $FIELDS= $this->compileSelect($builder->getSelect());
-        $FIELDS = empty($FIELDS)?"*":$FIELDS;
+        $select = $builder->getSelect();
+        $FIELDS = $this->compileSelect($select);
+        $FIELDS = empty($FIELDS) ? "*" : $FIELDS;
 
-        $TABLES=$this->compileFrom($builder->getFrom());
+        $from = $builder->getFrom();
+        $TABLES = $this->compileFrom($from);
 
-        $JOINS = $this->compileJoin($builder->getJoin());
-        $JOINS = empty($JOINS)?"":" {$JOINS}";
+        $join = $builder->getJoin();
+        $JOINS = $this->compileJoin($join);
+        $JOINS = empty($JOINS) ? "" : " {$JOINS}";
 
-        $WHERE = $this->compileWhere($builder->getWhere());
-        $WHERE = empty($WHERE)?"":" WHERE {$WHERE}";
+        $where = $builder->getWhere();
+        $WHERE = $this->compileWhere($where);
+        $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
 
-        $ORDER_BY = $this->compileOrder($builder->getOrder());
-        $ORDER_BY = empty($ORDER_BY)?"":" ORDER BY {$ORDER_BY}";
+        $order = $builder->getOrder();
+        $ORDER_BY = $this->compileOrder($order);
+        $ORDER_BY = empty($ORDER_BY) ? "" : " ORDER BY {$ORDER_BY}";
 
-        $GROUP_BY = $this->compileGroup($builder->getGroup());
-        $GROUP_BY = empty($GROUP_BY)?"":" GROUP BY {$GROUP_BY}";
+        $group = $builder->getGroup();
+        $GROUP_BY = $this->compileGroup($group);
+        $GROUP_BY = empty($GROUP_BY) ? "" : " GROUP BY {$GROUP_BY}";
 
-        $HAVING = $this->compileHaving($builder->getHaving());
-        $HAVING = empty($HAVING)?"":" HAVING {$HAVING}";
+        $having = $builder->getHaving();
+        $HAVING = $this->compileHaving($having);
+        $HAVING = empty($HAVING) ? "" : " HAVING {$HAVING}";
 
-        $LIMIT = $this->compileLimit($builder->getLimit());
-        $LIMIT = empty($LIMIT)?"":" LIMIT {$LIMIT}";
-
-        return "SELECT {$FIELDS} FROM {$TABLES}{$JOINS}{$WHERE}{$ORDER_BY}{$GROUP_BY}{$HAVING}{$LIMIT}";
+        return "SELECT COUNT({$FIELDS}) FROM {$TABLES}{$JOINS}{$WHERE}{$ORDER_BY}{$GROUP_BY}{$HAVING}";
     }
 
     /**
      * @param Builder $builder
      * @return string
      */
-    function toInsertSql(Builder $builder)
+    function toSelectSql(Builder &$builder)
+    {
+        $select = $builder->getSelect();
+        $FIELDS = $this->compileSelect($select);
+        $FIELDS = empty($FIELDS) ? "*" : $FIELDS;
+
+        $from = $builder->getFrom();
+        $TABLES = $this->compileFrom($from);
+
+        $join = $builder->getJoin();
+        $JOINS = $this->compileJoin($join);
+        $JOINS = empty($JOINS) ? "" : " {$JOINS}";
+
+        $where = $builder->getWhere();
+        $WHERE = $this->compileWhere($where);
+        $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
+
+        $order = $builder->getOrder();
+        $ORDER_BY = $this->compileOrder($order);
+        $ORDER_BY = empty($ORDER_BY) ? "" : " ORDER BY {$ORDER_BY}";
+
+        $group = $builder->getGroup();
+        $GROUP_BY = $this->compileGroup($group);
+        $GROUP_BY = empty($GROUP_BY) ? "" : " GROUP BY {$GROUP_BY}";
+
+        $having = $builder->getHaving();
+        $HAVING = $this->compileHaving($having);
+        $HAVING = empty($HAVING) ? "" : " HAVING {$HAVING}";
+
+        $limit = $builder->getLimit();
+        $LIMIT = $this->compileLimit($limit);
+        $LIMIT = empty($LIMIT) ? "" : " LIMIT {$LIMIT}";
+
+        return "SELECT {$FIELDS} FROM {$TABLES}{$JOINS}{$WHERE}{$ORDER_BY}{$GROUP_BY}{$HAVING}{$LIMIT}";
+    }
+
+    /**
+     * @param Builder $builder
+     * @param bool $is_replace
+     * @return string
+     */
+    function toInsertSql(Builder $builder, $is_replace = false)
     {
         $data = $builder->getSet()->data();
-        if ( ! is_array(reset($data)))
-        {
+        if (!is_array(reset($data))) {
             $data = array($data);
         }
 
-        $FIELDS = implode(',',array_map(function ($field) {
+        $FIELDS = implode(',', array_map(function ($field) {
             return $this->wrapField($field);
         }, array_keys(reset($data))));
 
-        $VALUES = implode(',',array_map(function ($value) {
-            return "(".array_map(function ($val) {
-                return $this->wrapValue($val);
-            }, $value).")";
+        $VALUES = implode(',', array_map(function ($value) {
+            return "(" . implode(',', array_map(function ($val) {
+                    return $this->wrapValue($val);
+                }, array_values($value))) . ")";
         }, $data));
 
-        $FROM = $this->compileFrom($builder->getFrom());
+        $from = $builder->getFrom();
+        $FROM = $this->compileFrom($from);
 
-        return "INSERT INTO {$FROM} ($FIELDS) VALUES $VALUES";
+        return ($is_replace == true ? "REPLACE" : "INSERT") . " INTO {$FROM} ($FIELDS) VALUES $VALUES";
     }
 
     /**
@@ -351,10 +407,11 @@ class Grammar {
      */
     function toDeleteSql(Builder $builder)
     {
-        $TABLES=$this->compileFrom($builder->getFrom());
+        $TABLES = $this->compileFrom($builder->getFrom());
 
-        $WHERE = $this->compileWhere($builder->getWhere());
-        $WHERE = empty($WHERE)?"":" WHERE {$WHERE}";
+        $where = $builder->getWhere();
+        $WHERE = $this->compileWhere($where);
+        $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
 
         return "DELETE FROM {$TABLES}{$WHERE}";
     }
@@ -365,12 +422,16 @@ class Grammar {
      */
     function toUpdateSql(Builder $builder)
     {
-        $TABLES=$this->compileFrom($builder->getFrom());
-        $JOINS = $this->compileJoin($builder->getJoin());
-        $JOINS = empty($JOINS)?"":" {$JOINS}";
+        $from = $builder->getFrom();
+        $TABLES = $this->compileFrom($from);
 
-        $WHERE = $this->compileWhere($builder->getWhere());
-        $WHERE = empty($WHERE)?"":" WHERE {$WHERE}";
+        $join = $builder->getJoin();
+        $JOINS = $this->compileJoin($join);
+        $JOINS = empty($JOINS) ? "" : " {$JOINS}";
+
+        $where = $builder->getWhere();
+        $WHERE = $this->compileWhere($where);
+        $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
 
         $SET = $this->compileSet($builder->getSet());
         return "UPDATE {$TABLES}{$JOINS} SET {$SET}{$WHERE}";

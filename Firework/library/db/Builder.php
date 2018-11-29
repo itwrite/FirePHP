@@ -198,7 +198,7 @@ class Builder
     }
 
     /**
-     * @param string $fields
+     * @param mixed $fields
      * @return $this
      */
     function select($fields = '*')
@@ -217,7 +217,7 @@ class Builder
      * @param $table
      * @return $this
      */
-    function from($table)
+    function table($table)
     {
         $this->getFrom()->table($table);
         return $this;
@@ -380,17 +380,25 @@ class Builder
     /**
      * @return string
      */
+    function getCountSql(){
+        return $this->getGrammar()->toCountSql($this);
+    }
+
+    /**
+     * @return string
+     */
     function getSelectSql()
     {
         return $this->getGrammar()->toSelectSql($this);
     }
 
     /**
+     * @param bool $is_replace
      * @return string
      */
-    function getInsertSql()
+    function getInsertSql($is_replace = false)
     {
-        return $this->getGrammar()->toInsertSql($this);
+        return $this->getGrammar()->toInsertSql($this,$is_replace);
     }
 
     /**
