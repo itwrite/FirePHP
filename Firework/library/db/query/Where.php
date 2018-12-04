@@ -81,7 +81,8 @@ class Where extends Eloquent{
             }
         } elseif ($field instanceof \Closure) {
             $boolean = $operator;
-            $whereObj = new self($boolean);
+            $whereObj = new self();
+            $whereObj->setBoolean($boolean);
             $result = call_user_func($field, $whereObj);
             $this->data[] = isset($result) ? $result : $whereObj;
         }

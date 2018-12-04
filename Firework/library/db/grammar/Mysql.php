@@ -23,24 +23,24 @@ class Mysql extends Grammar
     );
 
     /**
-     * @param string $value
+     * @param string|array $value
      * @return string
      */
     protected function wrap($value)
     {
-        if(is_array($value)){
-            return implode(',',array_map(function($val){
+        if (is_array($value)) {
+            return implode(',', array_map(function ($val) {
                 return $this->wrap($val);
-            },$value));
+            }, $value));
         }
-        if(is_string($value) && strpos(strtolower($value), ',') !== false){
-            return $this->wrap(explode(',',$value));
+        if (is_string($value) && strpos(strtolower($value), ',') !== false) {
+            return $this->wrap(explode(',', $value));
         }
 
-        $arr = explode(' ',preg_replace('/\s+/', ' ', trim($value)),2);
+        $arr = explode(' ', preg_replace('/\s+/', ' ', trim($value)), 2);
 
         $value = $arr[0];
-        $alias = isset($arr[1])?" {$arr[1]}":'';
+        $alias = isset($arr[1]) ? " {$arr[1]}" : '';
 
         $wrapped = array();
 
@@ -50,9 +50,9 @@ class Mysql extends Grammar
 
             $segment = str_replace('`', '', $segment);
 
-            $wrapped[] = $segment=='*'?$segment:"`{$segment}`";
+            $wrapped[] = $segment == '*' ? $segment : "`{$segment}`";
         }
 
-        return implode('.', $wrapped).$alias;
+        return implode('.', $wrapped) . $alias;
     }
 }

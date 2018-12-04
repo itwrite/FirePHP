@@ -98,7 +98,7 @@ class Condition
     function setOperator($operator = '=')
     {
         if (is_string($operator)) {
-            $this->_operator =preg_replace('/\s+/', ' ', strtolower(trim($operator)));
+            $this->_operator = preg_replace('/\s+/', ' ', strtolower(trim($operator)));
         }
         return $this;
     }
