@@ -11,4 +11,7 @@ namespace Firework\library\db;
 
 class Connection {
 
+    function __construct()
+    {
+    }
 }
