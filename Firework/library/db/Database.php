@@ -79,7 +79,7 @@ class Database extends Builder
      */
     public function insert(Array $data, $is_replace = false)
     {
-        if(empty($data))return 0;
+        if (empty($data)) return 0;
         //set data
         $this->set($data);
         //get the insert sql
@@ -140,7 +140,8 @@ class Database extends Builder
     /**
      * @return int|mixed
      */
-    public function count(){
+    public function count()
+    {
         $this->limit(1);
         //get the select sql
         $SQL = $this->getCountSql();
@@ -268,7 +269,7 @@ class Database extends Builder
      */
     public function getLastSql()
     {
-        $SQL = $this->logSQLs[count($this->logSQLs)-1];
+        $SQL = $this->logSQLs[count($this->logSQLs) - 1];
         return $SQL ? $SQL : "";
     }
 
@@ -288,11 +289,11 @@ class Database extends Builder
      */
     function __call($name, $arguments)
     {
-        if(!method_exists($this,$name)){
-            if(method_exists($this->pdo(),$name)){
-                call_user_func_array(array($this->pdo(),$name),$arguments);
-            }else{
-                die("there is not exists method:".__CLASS__."->{$name}");
+        if (!method_exists($this, $name)) {
+            if (method_exists($this->pdo(), $name)) {
+                call_user_func_array(array($this->pdo(), $name), $arguments);
+            } else {
+                die("there is not exists method:" . __CLASS__ . "->{$name}");
             }
         }
     }
