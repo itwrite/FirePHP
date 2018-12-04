@@ -379,7 +379,8 @@ class Builder
     /**
      * @return string
      */
-    function getCountSql(){
+    function getCountSql()
+    {
         return $this->getGrammar()->toCountSql($this);
     }
 
@@ -397,7 +398,7 @@ class Builder
      */
     function getInsertSql($is_replace = false)
     {
-        return $this->getGrammar()->toInsertSql($this,$is_replace);
+        return $this->getGrammar()->toInsertSql($this, $is_replace);
     }
 
     /**
@@ -422,7 +423,7 @@ class Builder
      */
     function clear($operation = '')
     {
-        $operations = explode(',',"select,from,join,where,order,group,having,limit,set");
+        $operations = explode(',', "select,from,join,where,order,group,having,limit,set");
         if (func_num_args() == 0) {
             $this->clear($operations);
         } elseif (is_array($operation)) {
