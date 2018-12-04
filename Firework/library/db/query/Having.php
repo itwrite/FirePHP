@@ -11,7 +11,8 @@ namespace Firework\library\db\query;
 
 use Firework\library\db\query\schema\Eloquent;
 
-class Having extends Eloquent{
+class Having extends Eloquent
+{
 
     /**
      * @var Where|null
@@ -26,7 +27,8 @@ class Having extends Eloquent{
     /**
      * @return Where|null
      */
-    function getWhere(){
+    function getWhere()
+    {
         return $this->_Where;
     }
 
