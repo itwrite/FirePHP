@@ -21,7 +21,6 @@ use Firework\library\db\query\Set;
 use Firework\library\db\query\Where;
 
 require_once("grammar/Grammar.php");
-require_once("grammar/Mysql.php");
 
 require_once("query/From.php");
 require_once("query/Group.php");
