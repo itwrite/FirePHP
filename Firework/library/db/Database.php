@@ -43,13 +43,13 @@ class Database extends Builder
      * Database constructor.
      * @param string $dsn
      * @param string $username
-     * @param string $passwd
+     * @param string $password
      * @param array $options
      */
-    public function __construct($dsn, $username, $passwd, array $options = array())
+    public function __construct($dsn, $username, $password, array $options = array())
     {
         parent::__construct();
-        $this->_pdo = new \PDO($dsn, $username, $passwd, $options);
+        $this->_pdo = new \PDO($dsn, $username, $password, $options);
     }
 
     /**
@@ -209,10 +209,6 @@ class Database extends Builder
                 print_r(sprintf("[SQL Query]: %s %s\r\n", $statement, ($res == true ? '[true]' : '[false]')));
             }
         });
-        if ($res === false) {
-            $errorInfo = $this->errorInfo();
-            die(isset($errorInfo[2]) ? $errorInfo[2] : "");
-        }
         return $res;
     }
 
@@ -227,28 +223,11 @@ class Database extends Builder
             $res = $this->pdo()->exec($statement);
             $this->logSql($statement);
             if ($this->_debug) {
-                print_r(sprintf("[SQL Execute:]%s", $statement), ($res == true ? '[true]' : '[false]'));
+                print_r(sprintf("[SQL Execute]: %s", $statement), ($res == true ? '[true]' : '[false]'));
             }
         });
-        if ($res === false) {
-            $errorInfo = $this->errorInfo();
-            die(isset($errorInfo[2]) ? $errorInfo[2] : "");
-        }
         return $res;
     }
-
-    /**
-     * (PHP 5 &gt;= 5.1.3, PECL pdo &gt;= 1.0.3)<br/>
-     * Return an array of available PDO drivers
-     * @link http://php.net/manual/en/pdo.getavailabledrivers.php
-     * @return array <b>PDO::getAvailableDrivers</b> returns an array of PDO driver names. If
-     * no drivers are available, it returns an empty array.
-     */
-    public static function getAvailableDrivers()
-    {
-        return \PDO::getAvailableDrivers();
-    }
-
 
     /**
      * @param $callback
@@ -289,7 +268,7 @@ class Database extends Builder
      */
     public function getLastSql()
     {
-        $SQL = array_pop(array_values($this->logSQLs));
+        $SQL = $this->logSQLs[count($this->logSQLs)-1];
         return $SQL ? $SQL : "";
     }
 

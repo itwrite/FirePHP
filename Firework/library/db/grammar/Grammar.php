@@ -29,6 +29,11 @@ require_once(__DIR__ . "/../query/From.php");
 require_once(__DIR__ . "/../query/Where.php");
 require_once(__DIR__ . "/../query/capsule/Condition.php");
 
+/**
+ * default Mysql
+ * Class Grammar
+ * @package Firework\library\db\grammar
+ */
 class Grammar
 {
 
@@ -312,25 +317,25 @@ class Grammar
 
         $join = $builder->getJoin();
         $JOINS = $this->compileJoin($join);
-        $JOINS = empty($JOINS) ? "" : " {$JOINS}";
+        $JOINS = empty($JOINS) ? "" : "{$JOINS}";
 
         $where = $builder->getWhere();
         $WHERE = $this->compileWhere($where);
-        $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
+        $WHERE = empty($WHERE) ? "" : "WHERE {$WHERE}";
 
         $order = $builder->getOrder();
         $ORDER_BY = $this->compileOrder($order);
-        $ORDER_BY = empty($ORDER_BY) ? "" : " ORDER BY {$ORDER_BY}";
+        $ORDER_BY = empty($ORDER_BY) ? "" : "ORDER BY {$ORDER_BY}";
 
         $group = $builder->getGroup();
         $GROUP_BY = $this->compileGroup($group);
-        $GROUP_BY = empty($GROUP_BY) ? "" : " GROUP BY {$GROUP_BY}";
+        $GROUP_BY = empty($GROUP_BY) ? "" : "GROUP BY {$GROUP_BY}";
 
         $having = $builder->getHaving();
         $HAVING = $this->compileHaving($having);
-        $HAVING = empty($HAVING) ? "" : " HAVING {$HAVING}";
+        $HAVING = empty($HAVING) ? "" : "HAVING {$HAVING}";
 
-        return "SELECT COUNT({$FIELDS}) FROM {$TABLES}{$JOINS}{$WHERE}{$ORDER_BY}{$GROUP_BY}{$HAVING}";
+        return "SELECT COUNT({$FIELDS}) FROM {$TABLES} {$JOINS} {$WHERE} {$ORDER_BY} {$GROUP_BY} {$HAVING}";
     }
 
     /**
@@ -348,29 +353,29 @@ class Grammar
 
         $join = $builder->getJoin();
         $JOINS = $this->compileJoin($join);
-        $JOINS = empty($JOINS) ? "" : " {$JOINS}";
+        $JOINS = empty($JOINS) ? "" : "{$JOINS}";
 
         $where = $builder->getWhere();
         $WHERE = $this->compileWhere($where);
-        $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
+        $WHERE = empty($WHERE) ? "" : "WHERE {$WHERE}";
 
         $order = $builder->getOrder();
         $ORDER_BY = $this->compileOrder($order);
-        $ORDER_BY = empty($ORDER_BY) ? "" : " ORDER BY {$ORDER_BY}";
+        $ORDER_BY = empty($ORDER_BY) ? "" : "ORDER BY {$ORDER_BY}";
 
         $group = $builder->getGroup();
         $GROUP_BY = $this->compileGroup($group);
-        $GROUP_BY = empty($GROUP_BY) ? "" : " GROUP BY {$GROUP_BY}";
+        $GROUP_BY = empty($GROUP_BY) ? "" : "GROUP BY {$GROUP_BY}";
 
         $having = $builder->getHaving();
         $HAVING = $this->compileHaving($having);
-        $HAVING = empty($HAVING) ? "" : " HAVING {$HAVING}";
+        $HAVING = empty($HAVING) ? "" : "HAVING {$HAVING}";
 
         $limit = $builder->getLimit();
         $LIMIT = $this->compileLimit($limit);
-        $LIMIT = empty($LIMIT) ? "" : " LIMIT {$LIMIT}";
+        $LIMIT = empty($LIMIT) ? "" : "LIMIT {$LIMIT}";
 
-        return "SELECT {$FIELDS} FROM {$TABLES}{$JOINS}{$WHERE}{$ORDER_BY}{$GROUP_BY}{$HAVING}{$LIMIT}";
+        return "SELECT {$FIELDS} FROM {$TABLES} {$JOINS} {$WHERE} {$ORDER_BY} {$GROUP_BY} {$HAVING} {$LIMIT}";
     }
 
     /**
@@ -411,9 +416,9 @@ class Grammar
 
         $where = $builder->getWhere();
         $WHERE = $this->compileWhere($where);
-        $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
+        $WHERE = empty($WHERE) ? "" : "WHERE {$WHERE}";
 
-        return "DELETE FROM {$TABLES}{$WHERE}";
+        return "DELETE FROM {$TABLES} {$WHERE}";
     }
 
     /**
@@ -427,13 +432,13 @@ class Grammar
 
         $join = $builder->getJoin();
         $JOINS = $this->compileJoin($join);
-        $JOINS = empty($JOINS) ? "" : " {$JOINS}";
+        $JOINS = empty($JOINS) ? "" : "{$JOINS}";
 
         $where = $builder->getWhere();
         $WHERE = $this->compileWhere($where);
-        $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
+        $WHERE = empty($WHERE) ? "" : "WHERE {$WHERE}";
 
         $SET = $this->compileSet($builder->getSet());
-        return "UPDATE {$TABLES}{$JOINS} SET {$SET}{$WHERE}";
+        return "UPDATE {$TABLES} {$JOINS} SET {$SET} {$WHERE}";
     }
 }
