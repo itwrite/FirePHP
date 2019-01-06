@@ -6,7 +6,7 @@
  * Time: 10:10
  */
 
-namespace Firework\library\db;
+namespace Jasmine\library\db;
 
 require_once("Builder.php");
 
@@ -25,7 +25,7 @@ require_once("Builder.php");
  * @method bool sqliteCreateFunction($function_name, $callback, $num_args = -1, $flags = 0)
  * above methods are belong to PDO
  * Class Database
- * @package Firework\library\db
+ * @package Jasmine\library\db
  */
 class Database extends Builder
 {
@@ -224,7 +224,7 @@ class Database extends Builder
             $res = $this->pdo()->exec($statement);
             $this->logSql($statement);
             if ($this->_debug) {
-                print_r(sprintf("[SQL Execute]: %s", $statement), ($res == true ? '[true]' : '[false]'));
+                print_r(sprintf("[SQL Execute]: %s %s\r\n", $statement, ($res == true ? '[true]' : '[false]')));
             }
         });
         return $res;

@@ -6,22 +6,22 @@
  * Time: 10:58
  */
 
-namespace Firework\library\db\grammar;
+namespace Jasmine\library\db\grammar;
 
 
-use Firework\library\db\Builder;
-use Firework\library\db\query\capsule\Condition;
-use Firework\library\db\query\capsule\Expression;
-use Firework\library\db\query\capsule\JoinObject;
-use Firework\library\db\query\From;
-use Firework\library\db\query\Group;
-use Firework\library\db\query\Having;
-use Firework\library\db\query\Join;
-use Firework\library\db\query\Limit;
-use Firework\library\db\query\Order;
-use Firework\library\db\query\Select;
-use Firework\library\db\query\Set;
-use Firework\library\db\query\Where;
+use Jasmine\library\db\Builder;
+use Jasmine\library\db\query\capsule\Condition;
+use Jasmine\library\db\query\capsule\Expression;
+use Jasmine\library\db\query\capsule\JoinObject;
+use Jasmine\library\db\query\From;
+use Jasmine\library\db\query\Group;
+use Jasmine\library\db\query\Having;
+use Jasmine\library\db\query\Join;
+use Jasmine\library\db\query\Limit;
+use Jasmine\library\db\query\Order;
+use Jasmine\library\db\query\Select;
+use Jasmine\library\db\query\Set;
+use Jasmine\library\db\query\Where;
 
 require_once(__DIR__ . "/../query/capsule/Expression.php");
 require_once(__DIR__ . "/../query/schema/Eloquent.php");
@@ -32,7 +32,7 @@ require_once(__DIR__ . "/../query/capsule/Condition.php");
 /**
  * default Mysql
  * Class Grammar
- * @package Firework\library\db\grammar
+ * @package Jasmine\library\db\grammar
  */
 class Grammar
 {

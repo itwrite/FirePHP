@@ -6,7 +6,7 @@
  * Time: 18:15
  */
 
-namespace Firework\library\db\query\schema;
+namespace Jasmine\library\db\query\schema;
 
 abstract class Eloquent
 {
@@ -34,10 +34,12 @@ abstract class Eloquent
      */
     function rollback()
     {
-        $tables = $this->cache[count($this->cache) - 1];
-        if (!is_null($tables) && is_array($tables) && count($tables) > 0) {
-            $this->data = $tables;
-        }
+        /**
+         * 推出最后一个
+         * 剩下的重置到当前data
+         */
+        array_pop($this->cache);
+        $this->data = $this->cache;
         return $this;
     }
 

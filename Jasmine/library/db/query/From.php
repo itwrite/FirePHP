@@ -6,10 +6,10 @@
  * Time: 12:10
  */
 
-namespace Firework\library\db\query;
+namespace Jasmine\library\db\query;
 
-use Firework\library\db\query\capsule\Expression;
-use Firework\library\db\query\schema\Eloquent;
+use Jasmine\library\db\query\capsule\Expression;
+use Jasmine\library\db\query\schema\Eloquent;
 
 class From extends Eloquent{
     /**

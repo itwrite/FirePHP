@@ -6,7 +6,7 @@
  * Time: 10:09
  */
 
-namespace Firework\library\db;
+namespace Jasmine\library\db;
 
 
 class Connection {

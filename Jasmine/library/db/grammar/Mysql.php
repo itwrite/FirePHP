@@ -6,7 +6,7 @@
  * Time: 16:57
  */
 
-namespace Firework\library\db\grammar;
+namespace Jasmine\library\db\grammar;
 
 
 class Mysql extends Grammar
