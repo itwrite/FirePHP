@@ -39,8 +39,10 @@ abstract class Eloquent
          * 剩下的重置到当前data
          */
         array_pop($this->cache);
+
         $data = array_pop($this->cache);
         $this->data = is_array($data) ? $data : array();
+
         return $this;
     }
 

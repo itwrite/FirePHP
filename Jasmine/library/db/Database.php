@@ -46,7 +46,7 @@ class Database extends Builder
     public function __construct(\PDO $PDO)
     {
         parent::__construct();
-        $this->_pdo = new \PDO($PDO);
+        $this->_pdo = $PDO;
     }
 
     /**
