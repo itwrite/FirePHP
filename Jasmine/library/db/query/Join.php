@@ -6,12 +6,12 @@
  * Time: 14:49
  */
 
-namespace Firework\library\db\query;
+namespace Jasmine\library\db\query;
 
 require_once("capsule/JoinObject.php");
-use Firework\library\db\query\capsule\Expression;
-use Firework\library\db\query\capsule\JoinObject;
-use Firework\library\db\query\schema\Eloquent;
+use Jasmine\library\db\query\capsule\Expression;
+use Jasmine\library\db\query\capsule\JoinObject;
+use Jasmine\library\db\query\schema\Eloquent;
 
 
 class Join extends Eloquent{

@@ -6,7 +6,7 @@
  * Time: 11:02
  */
 
-namespace Firework\library\db\query\capsule;
+namespace Jasmine\library\db\query\capsule;
 
 
 class Expression

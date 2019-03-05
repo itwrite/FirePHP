@@ -6,19 +6,19 @@
  * Time: 10:10
  */
 
-namespace Firework\library\db;
+namespace Jasmine\library\db;
 
-use Firework\library\db\grammar\Grammar;
-use Firework\library\db\query\From;
-use Firework\library\db\query\Group;
-use Firework\library\db\query\Having;
-use Firework\library\db\query\Join;
-use Firework\library\db\query\Limit;
-use Firework\library\db\query\Order;
-use Firework\library\db\query\schema\Eloquent;
-use Firework\library\db\query\Select;
-use Firework\library\db\query\Set;
-use Firework\library\db\query\Where;
+use Jasmine\library\db\grammar\Grammar;
+use Jasmine\library\db\query\From;
+use Jasmine\library\db\query\Group;
+use Jasmine\library\db\query\Having;
+use Jasmine\library\db\query\Join;
+use Jasmine\library\db\query\Limit;
+use Jasmine\library\db\query\Order;
+use Jasmine\library\db\query\schema\Eloquent;
+use Jasmine\library\db\query\Select;
+use Jasmine\library\db\query\Set;
+use Jasmine\library\db\query\Where;
 
 require_once("grammar/Grammar.php");
 
@@ -200,7 +200,7 @@ class Builder
      * @param mixed $fields
      * @return $this
      */
-    function select($fields = '*')
+    function fields($fields = '*')
     {
         if ($fields instanceof \Closure) {
             $this->getSelect()->field(function () use ($fields) {

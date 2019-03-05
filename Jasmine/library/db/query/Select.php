@@ -3,17 +3,17 @@
  * Created by PhpStorm.
  * User: zzpzero
  * Date: 2018/4/24
- * Time: 14:49
+ * Time: 13:47
  */
 
-namespace Firework\library\db\query;
+namespace Jasmine\library\db\query;
 
+use Jasmine\library\db\query\capsule\Expression;
+use Jasmine\library\db\query\schema\Eloquent;
 
-use Firework\library\db\query\capsule\Expression;
-use Firework\library\db\query\schema\Eloquent;
-
-class Order extends Eloquent{
+class Select extends Eloquent{
     /**
+     * the data stores string or Expression
      * @param $field
      * @return $this
      */
@@ -27,7 +27,7 @@ class Order extends Eloquent{
             $this->data[] = $field;
         }elseif($field instanceof \Closure){
             $sql = call_user_func($field);
-            $this->data[] = isset($sql)?(($sql instanceof Expression)?$sql:(string)$sql):'';
+            $this->data[] = isset($sql)?(($sql instanceof Expression)?$sql:new Expression($sql)):'';
         }
         return $this;
     }

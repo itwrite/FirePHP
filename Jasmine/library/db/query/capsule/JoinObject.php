@@ -6,7 +6,7 @@
  * Time: 15:07
  */
 
-namespace Firework\library\db\query\capsule;
+namespace Jasmine\library\db\query\capsule;
 
 
 class JoinObject

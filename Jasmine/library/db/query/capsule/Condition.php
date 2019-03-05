@@ -6,7 +6,7 @@
  * Time: 10:54
  */
 
-namespace Firework\library\db\query\capsule;
+namespace Jasmine\library\db\query\capsule;
 
 
 class Condition
