@@ -32,7 +32,7 @@ class Database extends Builder
     /**
      * @var bool
      */
-    private $_debug = true;
+    private $_debug = false;
 
     /**
      * @var null|\PDO
@@ -41,15 +41,12 @@ class Database extends Builder
 
     /**
      * Database constructor.
-     * @param string $dsn
-     * @param string $username
-     * @param string $password
-     * @param array $options
+     * @param \PDO $PDO
      */
-    public function __construct($dsn, $username, $password, array $options = array())
+    public function __construct(\PDO $PDO)
     {
         parent::__construct();
-        $this->_pdo = new \PDO($dsn, $username, $password, $options);
+        $this->_pdo = new \PDO($PDO);
     }
 
     /**
@@ -64,7 +61,7 @@ class Database extends Builder
      * @param bool $debug
      * @return $this
      */
-    public function debug($debug = false)
+    public function debug($debug = true)
     {
         if (func_num_args() > 0) {
             $this->_debug = $debug;
@@ -127,17 +124,6 @@ class Database extends Builder
     }
 
     /**
-     * @param string $fields
-     * @return array|Builder
-     */
-    public function select($fields = '*')
-    {
-        parent::select($fields);
-
-        return $this->getAll();
-    }
-
-    /**
      * @return int|mixed
      */
     public function count()
@@ -157,7 +143,7 @@ class Database extends Builder
      * @param int $fetch_type
      * @return bool|mixed
      */
-    public function getOne($fetch_type = \PDO::FETCH_ASSOC)
+    public function find($fetch_type = \PDO::FETCH_ASSOC)
     {
         $this->limit(1);
         //get the select sql
@@ -172,11 +158,18 @@ class Database extends Builder
     }
 
     /**
+     * Desc:
+     * User: itwri
+     * Date: 2019/3/5
+     * Time: 23:55
+     *
+     * @param string $fields
      * @param int $fetch_type
-     * @return array
+     * @return array|Builder
      */
-    public function getAll($fetch_type = \PDO::FETCH_ASSOC)
+    public function select($fields = '*',$fetch_type = \PDO::FETCH_ASSOC)
     {
+        parent::fields($fields);
         //get the select sql
         $SQL = $this->getSelectSql();
         //query

@@ -200,7 +200,7 @@ class Builder
      * @param mixed $fields
      * @return $this
      */
-    function select($fields = '*')
+    function fields($fields = '*')
     {
         if ($fields instanceof \Closure) {
             $this->getSelect()->field(function () use ($fields) {
