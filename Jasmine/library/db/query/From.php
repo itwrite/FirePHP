@@ -11,24 +11,36 @@ namespace Jasmine\library\db\query;
 use Jasmine\library\db\query\capsule\Expression;
 use Jasmine\library\db\query\schema\Eloquent;
 
-class From extends Eloquent{
+class From extends Eloquent
+{
     /**
-     * the data stores string or Expression
+     * Desc:
+     * User: Peter
+     * Date: 2019/3/6
+     * Time: 19:40
+     *
      * @param $table
+     * @param bool $append
      * @return $this
      */
-    public function table($table)
+    public function table($table, $append = false)
     {
-        if (is_array($table)) {
-            foreach ($table as $val) {
-                $this->table($val);
+        if ($append) {
+            if (is_array($table)) {
+                foreach ($table as $val) {
+                    $this->table($val);
+                }
+            } elseif (is_string($table) || $table instanceof Expression) {
+                $this->data[] = $table;
+            } elseif ($table instanceof \Closure) {
+                $sql = call_user_func($table);
+                $this->data[] = isset($sql) ? (($sql instanceof Expression) ? $sql : (string)$sql) : '';
             }
-        }elseif(is_string($table) || $table instanceof Expression){
-            $this->data[] = $table;
-        }elseif($table instanceof \Closure){
-            $sql = call_user_func($table);
-            $this->data[] = isset($sql)?(($sql instanceof Expression)?$sql:(string)$sql):'';
+        } else {
+            $this->data = [];
+            $this->table($table, true);
         }
+
         return $this;
     }
 }
