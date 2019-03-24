@@ -378,14 +378,20 @@ class Database extends Builder
     }
 
     /**
+     *
+     * User: Peter
+     * Date: 2019/3/24
+     * Time: 23:15
+     *
      * @param $name
      * @param $arguments
+     * @return mixed
      */
     function __call($name, $arguments)
     {
         if (!method_exists($this, $name)) {
             if (method_exists($this->getPdo(), $name)) {
-                call_user_func_array(array($this->getPdo(), $name), $arguments);
+                return call_user_func_array(array($this->getPdo(), $name), $arguments);
             } else {
                 die("there is not exists method:" . __CLASS__ . "->{$name}");
             }

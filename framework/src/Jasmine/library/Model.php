@@ -204,15 +204,12 @@ class Model
      */
     function __call($name, $arguments)
     {
-        if ($name == 'table') {
-            $this->getDb()->getFrom()->clear();
-        }
         // Implement __call() method.
         if (!method_exists($this, $name) && method_exists($this->db, $name)) {
             if (in_array($name, explode(',', 'insert,delete,update,count,getLastSql,query,exec'))) {
-                $this->db->table($this->getTableFullName());
+                $this->getDb()->getFrom()->clear()->table($this->getTableFullName());
                 return call_user_func_array([$this->db, $name], $arguments);
-            } elseif (in_array($name, explode(',', 'debug,join,where,whereIn,whereNotIn,whereBetween,whereLike,order,group,limit,having,set'))) {
+            } elseif (in_array($name, explode(',', 'debug,fields,join,where,whereIn,whereNotIn,whereBetween,whereLike,order,group,limit,having,set,clear'))) {
                 call_user_func_array([$this->db, $name], $arguments);
                 return $this;
             } else {
