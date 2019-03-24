@@ -57,4 +57,17 @@ abstract class Eloquent
         }
         return $this;
     }
+
+    /**
+     * 重置数据
+     * User: Peter
+     * Date: 2019/3/19
+     * Time: 11:25
+     *
+     * @return $this
+     */
+    function reset(){
+        $this->data = [];
+        return $this;
+    }
 }

@@ -22,7 +22,6 @@ require_once("Builder.php");
  * @method array errorInfo ()
  * @method mixed getAttribute ($attribute)
  * @method string quote ($string, $parameter_type = \PDO::PARAM_STR)
- * @method bool sqliteCreateFunction($function_name, $callback, $num_args = -1, $flags = 0)
  * above methods are belong to PDO
  * Class Database
  * @package Jasmine\library\db
@@ -32,29 +31,107 @@ class Database extends Builder
     /**
      * @var bool
      */
-    private $_debug = false;
+    protected $debug = false;
 
     /**
      * @var null|\PDO
      */
-    private $_pdo = null;
+    protected $pdo = null;
+
+    /**
+     * @var null|\PDO
+     */
+    protected $write_pdo = null;
+
+    /**
+     * @var bool
+     */
+    protected $distributed = false;
 
     /**
      * Database constructor.
      * @param \PDO $PDO
      */
-    public function __construct(\PDO $PDO)
+    public function __construct(\PDO $PDO = null)
     {
         parent::__construct();
-        $this->_pdo = $PDO;
+        $this->pdo = $PDO;
     }
 
     /**
      * @return null|\PDO
      */
-    public function pdo()
+    public function getPdo()
     {
-        return $this->_pdo;
+        return $this->pdo;
+    }
+
+    /**
+     *
+     * User: Peter
+     * Date: 2019/3/24
+     * Time: 21:52
+     *
+     * @param \PDO $PDO
+     */
+    public function setPdo(\PDO $PDO){
+        $this->pdo = $PDO;
+    }
+
+    /**
+     *
+     * User: Peter
+     * Date: 2019/3/20
+     * Time: 3:27
+     *
+     * @return \PDO|null
+     */
+    public function getWritePdo()
+    {
+        return $this->write_pdo;
+    }
+
+    /**
+     *
+     * User: Peter
+     * Date: 2019/3/20
+     * Time: 3:28
+     *
+     * @param \PDO $PDO
+     * @return $this
+     */
+    public function setWritePdo(\PDO $PDO)
+    {
+        $this->write_pdo = $PDO;
+        return $this;
+    }
+
+    /**
+     *
+     * User: Peter
+     * Date: 2019/3/20
+     * Time: 3:58
+     *
+     * @return bool
+     */
+    public function getDistributed()
+    {
+        return $this->distributed;
+    }
+
+    /**
+     *
+     * User: Peter
+     * Date: 2019/3/24
+     * Time: 19:51
+     *
+     * @param bool $distributed
+     * @return $this
+     */
+    public function setDistributed($distributed = false)
+    {
+        $this->distributed = $distributed;
+        return $this;
     }
 
     /**
@@ -64,7 +141,7 @@ class Database extends Builder
     public function debug($debug = true)
     {
         if (func_num_args() > 0) {
-            $this->_debug = $debug;
+            $this->debug = $debug;
         }
         return $this;
     }
@@ -159,7 +236,7 @@ class Database extends Builder
 
     /**
      * Desc:
-     * User: itwri
+     * User: Peter
      * Date: 2019/3/5
      * Time: 23:55
      *
@@ -167,7 +244,7 @@ class Database extends Builder
      * @param int $fetch_type
      * @return array|Builder
      */
-    public function select($fields = '*',$fetch_type = \PDO::FETCH_ASSOC)
+    public function select($fields = '*', $fetch_type = \PDO::FETCH_ASSOC)
     {
         parent::fields($fields);
         //get the select sql
@@ -197,9 +274,18 @@ class Database extends Builder
     {
         $res = false;
         $this->trace(function () use ($statement, &$res) {
-            $res = $this->pdo()->query($statement);
+            $str = strtolower($statement);
+            if ($this->distributed && $this->write_pdo != null && (strpos($str, 'insert ') > -1
+                    || strpos($str, 'delete ') > -1 || strpos($str, 'update ') > -1
+                    || strpos($str, 'replace ') > -1 || strpos($str, 'truncate ') > -1
+                    || strpos($str, 'create ') > -1 || strpos($str, 'set ') > -1)
+            ) {
+                $res = $this->getWritePdo()->query($statement);
+            } else {
+                $res = $this->getPdo()->query($statement);
+            }
             $this->logSql($statement);
-            if ($this->_debug) {
+            if ($this->debug) {
                 print_r(sprintf("[SQL Query]: %s %s\r\n", $statement, ($res == true ? '[true]' : '[false]')));
             }
         });
@@ -207,6 +293,11 @@ class Database extends Builder
     }
 
     /**
+     *
+     * User: Peter
+     * Date: 2019/3/20
+     * Time: 3:26
+     *
      * @param $statement
      * @return bool
      */
@@ -214,9 +305,19 @@ class Database extends Builder
     {
         $res = false;
         $this->trace(function () use ($statement, &$res) {
-            $res = $this->pdo()->exec($statement);
+            $str = strtolower($statement);
+            if ($this->distributed && $this->write_pdo != null && (strpos($str, 'insert ') > -1
+                    || strpos($str, 'delete ') > -1 || strpos($str, 'update ') > -1
+                    || strpos($str, 'replace ') > -1 || strpos($str, 'truncate ') > -1
+                    || strpos($str, 'create ') > -1 || strpos($str, 'set ') > -1)
+            ) {
+                $res = $this->getWritePdo()->exec($statement);
+            } else {
+                $res = $this->getPdo()->exec($statement);
+            }
+
             $this->logSql($statement);
-            if ($this->_debug) {
+            if ($this->debug) {
                 print_r(sprintf("[SQL Execute]: %s %s\r\n", $statement, ($res == true ? '[true]' : '[false]')));
             }
         });
@@ -233,7 +334,7 @@ class Database extends Builder
             $time_arr = explode(' ', microtime(false));
             $start_time = $time_arr[0] + $time_arr[1];
             $start_memory = memory_get_usage();
-            if ($this->_debug) {
+            if ($this->debug) {
                 print_r(sprintf("[Start Time:%s, Memory:%skb]\r\n", date("H:i:s", intval($time_arr[1])) . substr($time_arr[0], 1), strval($start_memory)));
             }
             //callback
@@ -242,7 +343,7 @@ class Database extends Builder
             $time_arr = explode(' ', microtime(false));
             $end_time = $time_arr[0] + $time_arr[1];
             $send_memory = memory_get_usage();
-            if ($this->_debug) {
+            if ($this->debug) {
                 $runtime = number_format($end_time - $start_time, 10);
                 $used_memory = number_format((memory_get_usage() - $start_memory) / 1024, 2);
                 print_r(sprintf("[End Time:%s, Memory:%skb, Runtime:%s]\r\n", date("H:i:s", intval($time_arr[1])) . substr($time_arr[0], 1), strval($send_memory), $runtime, $used_memory));
@@ -277,14 +378,20 @@ class Database extends Builder
     }
 
     /**
+     *
+     * User: Peter
+     * Date: 2019/3/24
+     * Time: 23:15
+     *
      * @param $name
      * @param $arguments
+     * @return mixed
      */
     function __call($name, $arguments)
     {
         if (!method_exists($this, $name)) {
-            if (method_exists($this->pdo(), $name)) {
-                call_user_func_array(array($this->pdo(), $name), $arguments);
+            if (method_exists($this->getPdo(), $name)) {
+                return call_user_func_array(array($this->getPdo(), $name), $arguments);
             } else {
                 die("there is not exists method:" . __CLASS__ . "->{$name}");
             }

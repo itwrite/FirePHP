@@ -89,9 +89,11 @@ class Grammar
     {
         if ($value instanceof Expression) {
             return $value->getValue();
-        } elseif (is_string($value) || is_numeric($value)) {
+        } elseif (is_string($value)) {
             $value = addslashes($value);
             return "'{$value}'";
+        }elseif (is_numeric($value)){
+            return $value;
         } elseif (is_array($value)) {
             //return an array
             return array_map(function ($val) {
@@ -353,29 +355,29 @@ class Grammar
 
         $join = $builder->getJoin();
         $JOINS = $this->compileJoin($join);
-        $JOINS = empty($JOINS) ? "" : "{$JOINS}";
+        $JOINS = empty($JOINS) ? "" : " {$JOINS}";
 
         $where = $builder->getWhere();
         $WHERE = $this->compileWhere($where);
-        $WHERE = empty($WHERE) ? "" : "WHERE {$WHERE}";
+        $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
 
         $order = $builder->getOrder();
         $ORDER_BY = $this->compileOrder($order);
-        $ORDER_BY = empty($ORDER_BY) ? "" : "ORDER BY {$ORDER_BY}";
+        $ORDER_BY = empty($ORDER_BY) ? "" : " ORDER BY {$ORDER_BY}";
 
         $group = $builder->getGroup();
         $GROUP_BY = $this->compileGroup($group);
-        $GROUP_BY = empty($GROUP_BY) ? "" : "GROUP BY {$GROUP_BY}";
+        $GROUP_BY = empty($GROUP_BY) ? "" : " GROUP BY {$GROUP_BY}";
 
         $having = $builder->getHaving();
         $HAVING = $this->compileHaving($having);
-        $HAVING = empty($HAVING) ? "" : "HAVING {$HAVING}";
+        $HAVING = empty($HAVING) ? "" : " HAVING {$HAVING}";
 
         $limit = $builder->getLimit();
         $LIMIT = $this->compileLimit($limit);
-        $LIMIT = empty($LIMIT) ? "" : "LIMIT {$LIMIT}";
+        $LIMIT = empty($LIMIT) ? "" : " LIMIT {$LIMIT}";
 
-        return "SELECT {$FIELDS} FROM {$TABLES} {$JOINS} {$WHERE} {$ORDER_BY} {$GROUP_BY} {$HAVING} {$LIMIT}";
+        return "SELECT {$FIELDS} FROM {$TABLES}{$JOINS}{$WHERE}{$ORDER_BY}{$GROUP_BY}{$HAVING}{$LIMIT}";
     }
 
     /**
@@ -416,9 +418,9 @@ class Grammar
 
         $where = $builder->getWhere();
         $WHERE = $this->compileWhere($where);
-        $WHERE = empty($WHERE) ? "" : "WHERE {$WHERE}";
+        $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
 
-        return "DELETE FROM {$TABLES} {$WHERE}";
+        return "DELETE FROM {$TABLES}{$WHERE}";
     }
 
     /**
@@ -432,13 +434,14 @@ class Grammar
 
         $join = $builder->getJoin();
         $JOINS = $this->compileJoin($join);
-        $JOINS = empty($JOINS) ? "" : "{$JOINS}";
+        $JOINS = empty($JOINS) ? "" : " {$JOINS}";
 
         $where = $builder->getWhere();
         $WHERE = $this->compileWhere($where);
-        $WHERE = empty($WHERE) ? "" : "WHERE {$WHERE}";
+        $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
 
-        $SET = $this->compileSet($builder->getSet());
-        return "UPDATE {$TABLES} {$JOINS} SET {$SET} {$WHERE}";
+        $set = $builder->getSet();
+        $SET = $this->compileSet($set);
+        return "UPDATE {$TABLES}{$JOINS} SET {$SET}{$WHERE}";
     }
 }
