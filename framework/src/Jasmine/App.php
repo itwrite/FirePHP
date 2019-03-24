@@ -29,7 +29,7 @@ class App
     protected $debug = false;
 
     /**
-     * @var array
+     * @var string
      */
     static protected $app_namespace = 'app';
 
@@ -116,8 +116,8 @@ class App
          * 取入口文件的目录为根目录
          * 保存到全局变量中
          */
-        $this->rootPath = $document_root = dirname(realpath(Server::get('PHP_SELF')));
-        Config::set('PATH_ROOT', $document_root);
+        $this->rootPath = dirname(realpath(Server::get('SCRIPT_FILENAME')));
+        Config::set('PATH_ROOT', $this->rootPath);
 
         /**
          * 此部分可通过提前声明全局常量来控制
@@ -129,7 +129,7 @@ class App
          * 应用目录，可通过提前声明的常量进行设置，也可以通过config去设置
          * 默认为入口文件目录下的Application目录
          */
-        !is_null(Config::get('PATH_APPS')) or Config::set('PATH_APPS', defined('PATH_APPS') ? PATH_APPS : $document_root . DS . 'Application' . DS);
+        !is_null(Config::get('PATH_APPS')) or Config::set('PATH_APPS', defined('PATH_APPS') ? PATH_APPS : dirname($this->rootPath) . DS . 'Application');
         $this->appPath = Config::get('PATH_APPS');
 
         /**
@@ -140,7 +140,7 @@ class App
         /**
          *
          */
-        $this->Connection = new Connection();
+        $this->Connection = new Connection(Config::get('db.links.read',[]));
 
     }
 
@@ -224,7 +224,7 @@ class App
         //如果返回的是false，强制退出
         if (is_callable($callback) && call_user_func_array($callback, array($this)) === false) exit("exit anyway!!");
 
-        defined('PATH_CONFIG') && $this->config('PATH_CONFIG', PATH_CONFIG);
+        defined('PATH_CONFIG') && Config::set('PATH_CONFIG', PATH_CONFIG);
 
         !is_null(Config::get('PATH_CONFIG')) && $this->loadConfig(Config::get('PATH_CONFIG'));
 
@@ -299,7 +299,7 @@ class App
         //如果返回的是false，强制退出
         if (is_callable($callback) && call_user_func_array($callback, array($this)) === false) exit("exit anyway!!");
 
-        defined('PATH_CONFIG') && $this->config('PATH_CONFIG', PATH_CONFIG);
+        defined('PATH_CONFIG') && Config::set('PATH_CONFIG', PATH_CONFIG);
 
         !is_null(Config::get('PATH_CONFIG')) && $this->loadConfig(Config::get('PATH_CONFIG'));
 
@@ -366,7 +366,10 @@ class App
     public function getDb()
     {
         if (self::$db == null) {
-            self::$db = new Database($this->Connection->ping(Config::get('db.links.read'), 'read'));
+            if(!self::$db=$this->Connection->getMaster()){
+                self::$db = new Database($this->Connection->ping(Config::get('db.links.read'), 'read'));
+            }
+
             if (Config::get('db.distributed')) {
                 self::$db->setWritePdo($this->Connection->ping(Config::get('db.links.write'), 'write'));
                 self::$db->setDistributed(true);
@@ -402,22 +405,21 @@ class App
     }
 
     /**
-     * Desc:
+     *
      * User: Peter
-     * Date: 2019/3/8
-     * Time: 1:22
+     * Date: 2019/3/24
+     * Time: 23:22
      *
      * @param $key
-     * @param null $value
+     * @param null $default
      * @return mixed
      */
-    public function config($key, $value = null)
+    public function config($key='', $default = null)
     {
-        if (func_num_args() == 2) {
-            Config::set($key, $value);
-        } else {
-            return Config::get($key);
+        if (func_num_args() == 0||empty($key)) {
+            return Config::all();
         }
+        return Config::get($key,$default);
     }
 
     /**
@@ -464,7 +466,8 @@ class App
 
         //if it is already there, load it directly.
         if (isset(self::$_auto_loaded_class_files[$class])) {
-            require_once(self::$_auto_loaded_class_files[$class]);
+            File::load(self::$_auto_loaded_class_files[$class]);
+            return true;
         } else {
             //
             $first_of_namespace = strstr($class, '\\', true);
@@ -485,10 +488,9 @@ class App
             if (in_array($first_of_namespace, [self::$app_namespace, $framework_namespace])) {
                 $basePath = dirname(__DIR__);
 
-
                 if ($first_of_namespace == self::$app_namespace) {
                     $basePath = Config::get('PATH_APPS');
-                    $filename = substr($filename, 4);
+                    $filename = substr($filename, strlen(self::$app_namespace)+1);
                 }
 
                 //架框类目录

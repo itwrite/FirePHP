@@ -11,10 +11,10 @@ namespace Jasmine\library\db;
 
 class Connection
 {
-    private $masterLink = 0;
+    private $masterLink = 'read';
     protected $links = [];
 
-    function __construct($config = [])
+    function __construct($config)
     {
         if(func_num_args()>0){
             $this->ping($config,$this->masterLink);
