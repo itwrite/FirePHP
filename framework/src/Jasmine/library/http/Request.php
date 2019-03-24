@@ -32,7 +32,7 @@ class Request
         'var_module'=>'m',
         'var_controller'=>'c',
         // PATHINFO变量名 用于兼容模式
-        'var_pathinfo' => 's',
+        'var_route' => 's',
         // 表单请求类型伪装变量
         'var_method' => '_method',
         // 表单ajax伪装变量
@@ -85,12 +85,12 @@ class Request
 
         $this->_method = $this->getMethod();
 
-        if($pathinfo = $this->getRawParam($this->config('var_pathinfo'))){
+        if($route = $this->getRawParam($this->config('var_route'))){
 
-            if ($pathinfo && preg_match('/^\/+(.*)/', $pathinfo, $mts)) {
-                $pathinfo = $mts[1];
+            if ($route && preg_match('/^\/+(.*)/', $route, $mts)) {
+                $route = $mts[1];
             }
-            $arr = explode('/', $pathinfo);
+            $arr = explode('/', $route);
             $this->module = array_shift($arr);
             $this->controller = count($arr)>0?array_shift($arr):'';
             $this->action = count($arr)>0?array_shift($arr):'';
