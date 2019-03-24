@@ -434,13 +434,14 @@ class Grammar
 
         $join = $builder->getJoin();
         $JOINS = $this->compileJoin($join);
-        $JOINS = empty($JOINS) ? "" : "{$JOINS}";
+        $JOINS = empty($JOINS) ? "" : " {$JOINS}";
 
         $where = $builder->getWhere();
         $WHERE = $this->compileWhere($where);
         $WHERE = empty($WHERE) ? "" : " WHERE {$WHERE}";
 
-        $SET = $this->compileSet($builder->getSet());
-        return "UPDATE {$TABLES} {$JOINS} SET {$SET}{$WHERE}";
+        $set = $builder->getSet();
+        $SET = $this->compileSet($set);
+        return "UPDATE {$TABLES}{$JOINS} SET {$SET}{$WHERE}";
     }
 }
