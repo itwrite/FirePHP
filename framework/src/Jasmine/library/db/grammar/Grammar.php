@@ -305,6 +305,39 @@ class Grammar
     }
 
     /**
+     *
+     * User: Peter
+     * Date: 2019/3/27
+     * Time: 23:05
+     *
+     * @param Builder $builder
+     * @param bool $replace
+     * @return string
+     */
+    function getInsertSql(Builder $builder,$replace=false)
+    {
+        $data = $builder->getSet()->data();
+        if (!is_array(reset($data))) {
+            $data = array($data);
+        }
+
+        $FIELDS = implode(',', array_map(function ($field) {
+            return $this->wrapField($field);
+        }, array_keys(reset($data))));
+
+        $VALUES = implode(',', array_map(function ($value) {
+            return "(" . implode(',', array_map(function ($val) {
+                    return $this->wrapValue($val);
+                }, array_values($value))) . ")";
+        }, $data));
+
+        $from = $builder->getFrom();
+        $FROM = $this->compileFrom($from);
+
+        return ($replace?"REPLACE":"INSERT")." INTO {$FROM} ($FIELDS) VALUES $VALUES";
+    }
+
+    /**
      * @param Builder $builder
      * @return string
      */
@@ -381,31 +414,30 @@ class Grammar
     }
 
     /**
+     *
+     * User: Peter
+     * Date: 2019/3/27
+     * Time: 10:10
+     *
      * @param Builder $builder
-     * @param bool $is_replace
      * @return string
      */
-    function toInsertSql(Builder $builder, $is_replace = false)
+    function toInsertSql(Builder $builder)
     {
-        $data = $builder->getSet()->data();
-        if (!is_array(reset($data))) {
-            $data = array($data);
-        }
+        return $this->getInsertSql($builder,false);
+    }
 
-        $FIELDS = implode(',', array_map(function ($field) {
-            return $this->wrapField($field);
-        }, array_keys(reset($data))));
-
-        $VALUES = implode(',', array_map(function ($value) {
-            return "(" . implode(',', array_map(function ($val) {
-                    return $this->wrapValue($val);
-                }, array_values($value))) . ")";
-        }, $data));
-
-        $from = $builder->getFrom();
-        $FROM = $this->compileFrom($from);
-
-        return ($is_replace == true ? "REPLACE" : "INSERT") . " INTO {$FROM} ($FIELDS) VALUES $VALUES";
+    /**
+     *
+     * User: Peter
+     * Date: 2019/3/27
+     * Time: 10:11
+     *
+     * @param Builder $builder
+     * @return string
+     */
+    function toReplaceSql(Builder $builder){
+        return $this->getInsertSql($builder,true);
     }
 
     /**

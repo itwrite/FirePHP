@@ -393,12 +393,29 @@ class Builder
     }
 
     /**
-     * @param bool $is_replace
+     *
+     * User: Peter
+     * Date: 2019/3/27
+     * Time: 10:08
+     *
      * @return string
      */
-    function getInsertSql($is_replace = false)
+    function getInsertSql()
     {
-        return $this->getGrammar()->toInsertSql($this, $is_replace);
+        return $this->getGrammar()->toInsertSql($this);
+    }
+
+    /**
+     *
+     * User: Peter
+     * Date: 2019/3/27
+     * Time: 10:08
+     *
+     * @return string
+     */
+    function getReplaceSql()
+    {
+        return $this->getGrammar()->toReplaceSql($this);
     }
 
     /**
