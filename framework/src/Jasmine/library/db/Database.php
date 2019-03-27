@@ -38,100 +38,16 @@ class Database extends Builder
      */
     protected $pdo = null;
 
-    /**
-     * @var null|\PDO
-     */
-    protected $write_pdo = null;
 
-    /**
-     * @var bool
-     */
-    protected $distributed = false;
-
-    /**
-     * Database constructor.
-     * @param \PDO $PDO
-     */
-    public function __construct(\PDO $PDO = null)
+    public function __construct(\PDO $pdo = null)
     {
         parent::__construct();
-        $this->pdo = $PDO;
-    }
-
-    /**
-     * @return null|\PDO
-     */
-    public function getPdo()
-    {
-        return $this->pdo;
-    }
-
-    /**
-     *
-     * User: Peter
-     * Date: 2019/3/24
-     * Time: 21:52
-     *
-     * @param \PDO $PDO
-     */
-    public function setPdo(\PDO $PDO){
-        $this->pdo = $PDO;
-    }
-
-    /**
-     *
-     * User: Peter
-     * Date: 2019/3/20
-     * Time: 3:27
-     *
-     * @return \PDO|null
-     */
-    public function getWritePdo()
-    {
-        return $this->write_pdo;
-    }
-
-    /**
-     *
-     * User: Peter
-     * Date: 2019/3/20
-     * Time: 3:28
-     *
-     * @param \PDO $PDO
-     * @return $this
-     */
-    public function setWritePdo(\PDO $PDO)
-    {
-        $this->write_pdo = $PDO;
-        return $this;
-    }
-
-    /**
-     *
-     * User: Peter
-     * Date: 2019/3/20
-     * Time: 3:58
-     *
-     * @return bool
-     */
-    public function getDistributed()
-    {
-        return $this->distributed;
-    }
-
-    /**
-     *
-     * User: Peter
-     * Date: 2019/3/24
-     * Time: 19:51
-     *
-     * @param bool $distributed
-     * @return $this
-     */
-    public function setDistributed($distributed = false)
-    {
-        $this->distributed = $distributed;
-        return $this;
+        /**
+         *
+         */
+        if ($pdo instanceof \PDO) {
+            $this->pdo = $pdo;
+        }
     }
 
     /**
@@ -147,6 +63,24 @@ class Database extends Builder
     }
 
     /**
+     *
+     * User: Peter
+     * Date: 2019/3/27
+     * Time: 22:52
+     *
+     * @return null|\PDO
+     */
+    function getPdo()
+    {
+        return $this->pdo;
+    }
+
+    /**
+     *
+     * User: Peter
+     * Date: 2019/3/27
+     * Time: 22:53
+     *
      * @param array $data
      * @param bool $is_replace
      * @return int
@@ -157,7 +91,7 @@ class Database extends Builder
         //set data
         $this->set($data);
         //get the insert sql
-        $SQL = $this->getInsertSql($is_replace);
+        $SQL = $is_replace ? $this->getGrammar()->toReplaceSql($this) : $this->getGrammar()->toInsertSql($this);
         //begin transaction
         $this->beginTransaction();
         //execute the sql
@@ -242,7 +176,7 @@ class Database extends Builder
      *
      * @param string $fields
      * @param int $fetch_type
-     * @return array|Builder
+     * @return array
      */
     public function select($fields = '*', $fetch_type = \PDO::FETCH_ASSOC)
     {
@@ -274,16 +208,7 @@ class Database extends Builder
     {
         $res = false;
         $this->trace(function () use ($statement, &$res) {
-            $str = strtolower($statement);
-            if ($this->distributed && $this->write_pdo != null && (strpos($str, 'insert ') > -1
-                    || strpos($str, 'delete ') > -1 || strpos($str, 'update ') > -1
-                    || strpos($str, 'replace ') > -1 || strpos($str, 'truncate ') > -1
-                    || strpos($str, 'create ') > -1 || strpos($str, 'set ') > -1)
-            ) {
-                $res = $this->getWritePdo()->query($statement);
-            } else {
-                $res = $this->getPdo()->query($statement);
-            }
+            $res = $this->getPdo()->query($statement);
             $this->logSql($statement);
             if ($this->debug) {
                 print_r(sprintf("[SQL Query]: %s %s\r\n", $statement, ($res == true ? '[true]' : '[false]')));
@@ -305,17 +230,7 @@ class Database extends Builder
     {
         $res = false;
         $this->trace(function () use ($statement, &$res) {
-            $str = strtolower($statement);
-            if ($this->distributed && $this->write_pdo != null && (strpos($str, 'insert ') > -1
-                    || strpos($str, 'delete ') > -1 || strpos($str, 'update ') > -1
-                    || strpos($str, 'replace ') > -1 || strpos($str, 'truncate ') > -1
-                    || strpos($str, 'create ') > -1 || strpos($str, 'set ') > -1)
-            ) {
-                $res = $this->getWritePdo()->exec($statement);
-            } else {
-                $res = $this->getPdo()->exec($statement);
-            }
-
+            $res = $this->getPdo()->exec($statement);
             $this->logSql($statement);
             if ($this->debug) {
                 print_r(sprintf("[SQL Execute]: %s %s\r\n", $statement, ($res == true ? '[true]' : '[false]')));
