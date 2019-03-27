@@ -70,7 +70,7 @@ class Database extends Builder
      *
      * @return null|\PDO
      */
-    function getPdo()
+    public function getPdo()
     {
         return $this->pdo;
     }

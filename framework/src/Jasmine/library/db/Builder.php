@@ -59,7 +59,7 @@ class Builder
     /**
      * @return Grammar|null
      */
-    function getGrammar()
+    protected function getGrammar()
     {
         if ($this->Grammar == null) {
             $this->Grammar = new Grammar();
@@ -71,7 +71,7 @@ class Builder
      * @param Grammar $grammar
      * @return $this
      */
-    function setGrammar(Grammar $grammar)
+    protected function setGrammar(Grammar $grammar)
     {
         if ($grammar instanceof Grammar) {
             $this->Grammar = $grammar;
@@ -87,7 +87,7 @@ class Builder
     /**
      * @return Select|null
      */
-    function getSelect()
+    protected function getSelect()
     {
         return $this->Select;
     }
@@ -100,7 +100,7 @@ class Builder
     /**
      * @return From|null
      */
-    function getFrom()
+    protected function getFrom()
     {
         return $this->From;
     }
@@ -113,7 +113,7 @@ class Builder
     /**
      * @return Join|null
      */
-    function getJoin()
+    protected function getJoin()
     {
         return $this->Join;
     }
@@ -126,7 +126,7 @@ class Builder
     /**
      * @return Set|null
      */
-    function getSet()
+    protected function getSet()
     {
         return $this->Set;
     }
@@ -139,7 +139,7 @@ class Builder
     /**
      * @return Where|null
      */
-    function getWhere()
+    protected function getWhere()
     {
         return $this->Where;
     }
@@ -152,7 +152,7 @@ class Builder
     /**
      * @return Order|null
      */
-    function getOrder()
+    protected function getOrder()
     {
         return $this->Order;
     }
@@ -165,7 +165,7 @@ class Builder
     /**
      * @return Group|null
      */
-    function getGroup()
+    protected function getGroup()
     {
         return $this->Group;
     }
@@ -178,7 +178,7 @@ class Builder
     /**
      * @return Having|null
      */
-    function getHaving()
+    protected function getHaving()
     {
         return $this->Having;
     }
@@ -191,7 +191,7 @@ class Builder
     /**
      * @return Limit|null
      */
-    function getLimit()
+    protected function getLimit()
     {
         return $this->Limit;
     }
@@ -200,7 +200,7 @@ class Builder
      * @param mixed $fields
      * @return $this
      */
-    function fields($fields = '*')
+    public function fields($fields = '*')
     {
         if ($fields instanceof \Closure) {
             $this->getSelect()->field(function () use ($fields) {
@@ -216,7 +216,7 @@ class Builder
      * @param $table
      * @return $this
      */
-    function table($table)
+    public function table($table)
     {
         $this->getFrom()->table($table);
         return $this;
@@ -228,7 +228,7 @@ class Builder
      * @param string $type
      * @return $this
      */
-    function join($table, $on = '', $type = '')
+    public function join($table, $on = '', $type = '')
     {
         call_user_func_array(array($this->getJoin(), 'join'), func_get_args());
         return $this;
@@ -241,7 +241,7 @@ class Builder
      * @param string $boolean
      * @return $this
      */
-    function where($field, $operator = '', $value = '', $boolean = 'and')
+    public function where($field, $operator = '', $value = '', $boolean = 'and')
     {
         call_user_func_array(array($this->getWhere(), 'where'), func_get_args());
         return $this;
@@ -295,7 +295,7 @@ class Builder
      * @param string $field
      * @return $this
      */
-    function order($field = '')
+    public function order($field = '')
     {
         $this->getOrder()->field($field);
         return $this;
@@ -305,7 +305,7 @@ class Builder
      * @param string $field
      * @return $this
      */
-    function group($field = '')
+    public function group($field = '')
     {
         $this->getGroup()->field($field);
         return $this;
@@ -318,7 +318,7 @@ class Builder
      * @param string $boolean
      * @return $this
      */
-    function having($field, $operator = '', $value = '', $boolean = 'and')
+    public function having($field, $operator = '', $value = '', $boolean = 'and')
     {
         call_user_func_array(array($this->getHaving(), 'having'), func_get_args());
         return $this;
@@ -329,7 +329,7 @@ class Builder
      * @param int $page_size
      * @return $this
      */
-    function limit($offset = 0, $page_size = 10)
+    public function limit($offset = 0, $page_size = 10)
     {
         if (func_num_args() == 1) {
             $this->Limit->setOffset(0)->setPageSize($offset);
@@ -344,7 +344,7 @@ class Builder
      * @param string|mixed $value
      * @return $this
      */
-    function set($field, $value = '')
+    public function set($field, $value = '')
     {
         $this->getSet()->set($field, $value);
         return $this;
@@ -354,7 +354,7 @@ class Builder
      * @param string $option
      * @return $this
      */
-    function roll($option = '')
+    public function roll($option = '')
     {
         foreach (func_get_args() as $arg) {
             if (is_string($arg) && !empty($arg)) {
