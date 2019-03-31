@@ -20,8 +20,6 @@ use Jasmine\library\db\query\Select;
 use Jasmine\library\db\query\Set;
 use Jasmine\library\db\query\Where;
 
-require_once("grammar/Grammar.php");
-
 require_once("query/From.php");
 require_once("query/Group.php");
 require_once("query/Having.php");
@@ -39,7 +37,6 @@ class Builder
      */
     function __construct()
     {
-        $this->setGrammar(new Grammar());
         $this->Select = new Select();
         $this->From = new From();
         $this->Join = new Join();
@@ -51,35 +48,7 @@ class Builder
         $this->Limit = new Limit();
     }
 
-    /**
-     * @var Grammar|null
-     */
-    protected $Grammar = null;
-
-    /**
-     * @return Grammar|null
-     */
-    protected function getGrammar()
-    {
-        if ($this->Grammar == null) {
-            $this->Grammar = new Grammar();
-        }
-        return $this->Grammar;
-    }
-
-    /**
-     * @param Grammar $grammar
-     * @return $this
-     */
-    protected function setGrammar(Grammar $grammar)
-    {
-        if ($grammar instanceof Grammar) {
-            $this->Grammar = $grammar;
-        }
-        return $this;
-    }
-
-    /**
+     /**
      * @var Select|null
      */
     protected $Select = null;
@@ -87,7 +56,7 @@ class Builder
     /**
      * @return Select|null
      */
-    protected function getSelect()
+    public function getSelect()
     {
         return $this->Select;
     }
@@ -100,7 +69,7 @@ class Builder
     /**
      * @return From|null
      */
-    protected function getFrom()
+    public function getFrom()
     {
         return $this->From;
     }
@@ -113,7 +82,7 @@ class Builder
     /**
      * @return Join|null
      */
-    protected function getJoin()
+    public function getJoin()
     {
         return $this->Join;
     }
@@ -126,7 +95,7 @@ class Builder
     /**
      * @return Set|null
      */
-    protected function getSet()
+    public function getSet()
     {
         return $this->Set;
     }
@@ -139,7 +108,7 @@ class Builder
     /**
      * @return Where|null
      */
-    protected function getWhere()
+    public function getWhere()
     {
         return $this->Where;
     }
@@ -152,7 +121,7 @@ class Builder
     /**
      * @return Order|null
      */
-    protected function getOrder()
+    public function getOrder()
     {
         return $this->Order;
     }
@@ -165,7 +134,7 @@ class Builder
     /**
      * @return Group|null
      */
-    protected function getGroup()
+    public function getGroup()
     {
         return $this->Group;
     }
@@ -178,7 +147,7 @@ class Builder
     /**
      * @return Having|null
      */
-    protected function getHaving()
+    public function getHaving()
     {
         return $this->Having;
     }
@@ -191,7 +160,7 @@ class Builder
     /**
      * @return Limit|null
      */
-    protected function getLimit()
+    public function getLimit()
     {
         return $this->Limit;
     }
@@ -376,63 +345,6 @@ class Builder
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    function getCountSql()
-    {
-        return $this->getGrammar()->toCountSql($this);
-    }
-
-    /**
-     * @return string
-     */
-    function getSelectSql()
-    {
-        return $this->getGrammar()->toSelectSql($this);
-    }
-
-    /**
-     *
-     * User: Peter
-     * Date: 2019/3/27
-     * Time: 10:08
-     *
-     * @return string
-     */
-    function getInsertSql()
-    {
-        return $this->getGrammar()->toInsertSql($this);
-    }
-
-    /**
-     *
-     * User: Peter
-     * Date: 2019/3/27
-     * Time: 10:08
-     *
-     * @return string
-     */
-    function getReplaceSql()
-    {
-        return $this->getGrammar()->toReplaceSql($this);
-    }
-
-    /**
-     * @return string
-     */
-    function getDeleteSql()
-    {
-        return $this->getGrammar()->toDeleteSql($this);
-    }
-
-    /**
-     * @return string
-     */
-    function getUpdateSql()
-    {
-        return $this->getGrammar()->toUpdateSql($this);
-    }
 
     /**
      * @param string $operation

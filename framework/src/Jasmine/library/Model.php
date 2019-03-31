@@ -53,11 +53,7 @@ class Model
         /**
          * 使用框架的pdo连接数据库
          */
-        $this->db = new Database(App::init()->getDb()->getPdo());
-        if(Config::get('db.distributed')){
-            $this->db->setWritePdo(App::init()->getDb()->getWritePdo());
-            $this->db->setDistributed(true);
-        }
+        $this->db = App::init()->getDb();
 
         $arr = explode('\\', get_class($this));
         $class_name = array_pop($arr);
@@ -144,16 +140,17 @@ class Model
     /**
      *
      * User: Peter
-     * Date: 2019/3/19
-     * Time: 13:42
+     * Date: 2019/3/31
+     * Time: 19:31
      *
-     * @param mixed $id
+     * @param int $id
      * @param int $fetch_type
      * @return bool|mixed
+     * @throws \ErrorException
      */
-    function find($id=true,$fetch_type = \PDO::FETCH_ASSOC)
+    function find($id=0,$fetch_type = \PDO::FETCH_ASSOC)
     {
-        $this->db->table($this->getTableFullName());
+        $this->getDb()->getFrom()->clear()->table($this->getTableFullName());
         if(is_string($id) || is_numeric($id)){
             $this->where($this->getPk(),'=',$id);
         }
@@ -172,7 +169,7 @@ class Model
      */
     function select($fields = '*', $fetch_type = \PDO::FETCH_ASSOC)
     {
-        $this->db->table($this->getTableFullName());
+        $this->getDb()->getFrom()->clear()->table($this->getTableFullName());
         return call_user_func_array([$this->db, __FUNCTION__], func_get_args());
     }
 

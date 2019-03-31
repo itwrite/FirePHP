@@ -10,7 +10,7 @@ namespace Jasmine;
 
 use Jasmine\helper\Config;
 use Jasmine\library\console\Console;
-use Jasmine\library\db\Connection;
+use Jasmine\library\db\connection\Connection;
 use Jasmine\library\db\Database;
 use Jasmine\library\http\Request;
 use Jasmine\library\http\Response;
@@ -42,11 +42,6 @@ class App
      * @var Console|null
      */
     protected $Console = null;
-
-    /**
-     * @var Connection|null
-     */
-    protected $Connection = null;
 
     /**
      * @var Request|null
@@ -136,11 +131,6 @@ class App
          * 加载默认配置信息
          */
         Config::load(__DIR__ . DS . 'config');
-
-        /**
-         *
-         */
-        $this->Connection = new Connection(Config::get('db.links.read',[]));
 
     }
 
@@ -366,14 +356,7 @@ class App
     public function getDb()
     {
         if (self::$db == null) {
-            if(!self::$db=$this->Connection->getMaster()){
-                self::$db = new Database($this->Connection->ping(Config::get('db.links.read'), 'read'));
-            }
-
-            if (Config::get('db.distributed')) {
-                self::$db->setWritePdo($this->Connection->ping(Config::get('db.links.write'), 'write'));
-                self::$db->setDistributed(true);
-            }
+            self::$db = new Database(new Connection(Config::get('db')));
         }
         return self::$db;
     }
